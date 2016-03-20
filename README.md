@@ -9,7 +9,18 @@ This tool is the missing link between a system and its etcd-[confd](https://gith
 
 ## Building
 
-TODO
+Here are the requirements to build editd:
+
+* [go](https://golang.org/) 1.6
+* [gb](https://getgb.io/)
+
+Then, all you need is to compile the tool using the sources:
+
+```bash
+git clone https://github.com/thavel/editd.git
+cd editd
+gb build
+```
 
 ## Getting started
 
