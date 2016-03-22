@@ -2,7 +2,9 @@ package etcd
 
 import (
 	"fmt"
+	"bytes"
 	"strings"
+	"net/http"
 )
 
 const (
@@ -27,4 +29,22 @@ func (cli *Client) GetUrl(keyPath string) string {
 
 	keyPath = strings.TrimPrefix(keyPath, "/")
 	return fmt.Sprintf("%s/%s", cli.url, keyPath)
+}
+
+func (cli *Client) Push(to string, data string) bool {
+	// data should be json formatted: `{"key": "value"}`
+	json := []byte(data)
+	url := cli.GetUrl(to)
+
+	req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(json))
+	req.Header.Set("Content-Type", "application/json")
+
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	return resp.Status == "200"
 }
