@@ -14,7 +14,7 @@ Here are the requirements to build editd:
 * [go](https://golang.org/) 1.6
 * [gb](https://getgb.io/)
 
-Then, all you need is to compile the tool using the sources:
+Then, all you need is to compile the tool from the sources:
 
 ```bash
 git clone https://github.com/thavel/editd.git
