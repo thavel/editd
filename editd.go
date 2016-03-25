@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"github.com/editd/modules/etcd"
+	"github.com/thavel/editd/modules/etcd"
 )
 
 var (
@@ -12,5 +12,5 @@ var (
 
 func main() {
 	client := etcd.NewClient(etcdAddr, etcdPort)
-	log.Println(client.GetUrl("/hello/prout"))
+	log.Println(client.GetUrl("/hello/world"))
 }
