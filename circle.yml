@@ -1,0 +1,9 @@
+dependencies:
+  pre:
+    - go get github.com/constabulary/gb/...
+  post:
+    - gb vendor restore
+
+test:
+  override:
+    - gb build

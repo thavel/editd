@@ -1,5 +1,7 @@
 # editd
 
+[![Circle CI](https://img.shields.io/circleci/project/thavel/editd/master.svg)](https://circleci.com/gh/thavel/editd)
+
 `editd` is a lightweight publisher-side client to [etcd](https://github.com/coreos/etcd) focused on:
 
 * publishing new configs.
