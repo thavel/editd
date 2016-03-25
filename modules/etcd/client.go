@@ -2,49 +2,48 @@ package etcd
 
 import (
 	"fmt"
-	"bytes"
-	"strings"
-	"net/http"
+	"time"
+
+	"golang.org/x/net/context"
+	"github.com/coreos/etcd/client"
 )
 
 const (
-	baseUri = "http://%s:%d/%s/keys"
-	defaultVersion = "v2"
+	baseUri = "http://%s:%d"
 )
 
 type Client struct {
-	url string
+	url    string
+	config client.Config
+	etcd   client.KeysAPI
 }
 
 func NewClient(addr string, port int) *Client {
 	cli := new(Client)
-	cli.url = fmt.Sprintf(baseUri, addr, port, defaultVersion)
+	cli.url = fmt.Sprintf(baseUri, addr, port)
+
+	// Building a configuration structure
+	cli.config = client.Config {
+		Endpoints: []string{cli.url},
+		Transport: client.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
+	// Allocate a new etcd client
+	c, _ := client.New(cli.config)
+	cli.etcd = client.NewKeysAPI(c)
 	return cli
 }
 
-func (cli *Client) GetUrl(keyPath string) string {
-	if strings.HasSuffix(keyPath, "/") {
-		panic(fmt.Sprintf("'%s' is not a valid key!", keyPath))
-	}
-
-	keyPath = strings.TrimPrefix(keyPath, "/")
-	return fmt.Sprintf("%s/%s", cli.url, keyPath)
+func (cli *Client) Push(to string, data string) error {
+	_, err := cli.etcd.Set(context.Background(), to, data, nil)
+	return err
 }
 
-func (cli *Client) Push(to string, data string) bool {
-	// data should be json formatted: `{"key": "value"}`
-	json := []byte(data)
-	url := cli.GetUrl(to)
-
-	req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(json))
-	req.Header.Set("Content-Type", "application/json")
-
-	httpClient := &http.Client{}
-	resp, err := httpClient.Do(req)
+func (cli *Client) Pop(from string) (string, error) {
+	resp, err := cli.etcd.Get(context.Background(), from, nil)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	defer resp.Body.Close()
-
-	return resp.Status == "200"
+	return resp.Node.Value, err
 }
