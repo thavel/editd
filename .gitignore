@@ -26,6 +26,7 @@ _testmain.go
 # gb related
 bin/
 pkg/
+vendor/src/
 
 # IDE
 .idea/

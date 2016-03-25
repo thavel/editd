@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"github.com/thavel/editd/modules/etcd"
+
+	"etcd"
 )
 
 var (

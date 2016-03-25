@@ -19,6 +19,7 @@ Then, all you need is to compile the tool from the sources:
 ```bash
 git clone https://github.com/thavel/editd.git
 cd editd
+gb vendor restore
 gb build
 ```
 
