@@ -9,21 +9,16 @@ import (
 )
 
 var (
-	node     string
-	interval int
-	onetime  bool
+	node     = flag.String("node", "", "etcd node")
+	interval = flag.Int("interval", 600, "synchronization interval")
+	onetime  = flag.Bool("onetime", true, "run once and exit")
+	safe     = flag.Bool("safe", false, "exit upon errors")
 )
-
-func init() {
-	flag.StringVar(&node, "node", "", "etcd node")
-	flag.IntVar(&interval, "interval", 600, "synchronization interval")
-	flag.BoolVar(&onetime, "onetime", true, "run once and exit")
-}
 
 func main() {
 	flag.Parse()
 
-	config, err := etcd.NewConfig(node)
+	config, err := etcd.NewConfig(*node)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
