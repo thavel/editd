@@ -18,9 +18,9 @@ type Client struct {
 	etcd   client.KeysAPI
 }
 
-func NewClient(addr string, port int) *Client {
+func NewClient(conf *Config) *Client {
 	cli := new(Client)
-	cli.url = fmt.Sprintf(baseUri, addr, port)
+	cli.url = fmt.Sprintf(baseUri, conf.address, conf.port)
 
 	// Building a configuration structure
 	cli.config = client.Config {
