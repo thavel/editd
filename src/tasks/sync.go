@@ -1,6 +1,5 @@
 package tasks
 
-
 import (
 	"fmt"
 	"time"
@@ -14,8 +13,7 @@ type Pusher struct {
 	period time.Duration
 	limit  int
 	client *etcd.Client
-	key    string
-	value  string
+	data   *etcd.Data
 }
 
 func NewSync(cli *etcd.Client, period int) *Pusher {
@@ -25,9 +23,8 @@ func NewSync(cli *etcd.Client, period int) *Pusher {
 	return pusher
 }
 
-func (push *Pusher) Set(endpoint string, data string) {
-	push.key = endpoint
-	push.value = data
+func (push *Pusher) Set(endpoint string, data string, ttl int) {
+	push.data = etcd.NewData(endpoint, data, ttl)
 }
 
 func (push *Pusher) Start(limit int) *sync.WaitGroup {
@@ -43,9 +40,11 @@ func (push *Pusher) Start(limit int) *sync.WaitGroup {
 		// Ticker loop
 		count := 0
 		for range push.ticker.C {
-			err := push.client.Push(push.key, push.value)
+			err := push.client.Push(push.data)
 			if err != nil {
 				fmt.Println(err)
+			} else {
+				fmt.Println("Push succeed")
 			}
 			// Use counter only if there is a limit to avoid memory overflow
 			if (limit > 0) {

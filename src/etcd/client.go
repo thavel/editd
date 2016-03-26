@@ -35,8 +35,9 @@ func NewClient(conf *Config) *Client {
 	return cli
 }
 
-func (cli *Client) Push(to string, data string) error {
-	_, err := cli.etcd.Set(context.Background(), to, data, nil)
+func (cli *Client) Push(data *Data) error {
+	opts := client.SetOptions{TTL: data.ttl}
+	_, err := cli.etcd.Set(context.Background(), data.key, data.value, &opts)
 	return err
 }
 

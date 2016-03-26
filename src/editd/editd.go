@@ -11,11 +11,12 @@ import (
 
 var (
 	node     = flag.String("node", "", "etcd node")
-	interval = flag.Int("interval", 2500, "synchronization interval")
+	interval = flag.Int("interval", 5000, "synchronization interval")
 	onetime  = flag.Bool("onetime", false, "run once and exit")
 	safe     = flag.Bool("safe", false, "exit upon errors")
 	key      = flag.String("key", "", "etcd key path")
 	value    = flag.String("value", "", "specified key's value")
+	ttl      = flag.Int("ttl", 10000, "key time to live")
 )
 
 func main() {
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	pusher := tasks.NewSync(client, *interval)
-	pusher.Set(*key, *value)
+	pusher.Set(*key, *value, *ttl)
 	task := pusher.Start(limit)
 
 	task.Wait()
