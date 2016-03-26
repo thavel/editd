@@ -2,6 +2,7 @@ package tasks
 
 
 import (
+	"fmt"
 	"time"
 	"sync"
 
@@ -36,11 +37,16 @@ func (push *Pusher) Start(limit int) *sync.WaitGroup {
 	task := new(sync.WaitGroup)
 	task.Add(1)
 	go func() {
+		// Mark this task done when the goroutine exits
 		defer task.Done()
+
 		// Ticker loop
 		count := 0
 		for range push.ticker.C {
-			push.client.Push(push.key, push.value)
+			err := push.client.Push(push.key, push.value)
+			if err != nil {
+				fmt.Println(err)
+			}
 			// Use counter only if there is a limit to avoid memory overflow
 			if (limit > 0) {
 				count += 1
