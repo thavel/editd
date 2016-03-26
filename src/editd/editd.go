@@ -16,7 +16,8 @@ var (
 	safe     = flag.Bool("safe", false, "exit upon errors")
 	key      = flag.String("key", "", "etcd key path")
 	value    = flag.String("value", "", "specified key's value")
-	ttl      = flag.Int("ttl", 10000, "key time to live")
+	ttl      = flag.Int("ttl", 10000, "TTL duration for keys")
+	nottl    = flag.Bool("nottl", false, "disable TTL duration for keys")
 )
 
 func main() {
@@ -29,13 +30,20 @@ func main() {
 	}
 	client := etcd.NewClient(config)
 
+	// Compute pushing limit (onetime = 1 pushing)
 	limit := -1
 	if *onetime {
 		limit = 1
 	}
 
+	// Compute TTL value (no TTL = no duration)
+	ttlValue := *ttl
+	if *nottl {
+		ttlValue = 0
+	}
+
 	pusher := tasks.NewSync(client, *interval)
-	pusher.Set(*key, *value, *ttl)
+	pusher.Set(*key, *value, ttlValue)
 	task := pusher.Start(limit)
 
 	task.Wait()
