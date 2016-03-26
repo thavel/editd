@@ -21,8 +21,10 @@ var (
 )
 
 func main() {
+	// Parsing flags (aka command arguments)
 	flag.Parse()
 
+	// Instanciating etcd client and pusher
 	config, err := etcd.NewConfig(*node)
 	if err != nil {
 		fmt.Println(err)
@@ -42,10 +44,12 @@ func main() {
 		ttlValue = 0
 	}
 
-	pusher := tasks.NewSync(client, *interval)
+	// Creating a new asynchronous task to push keys/values.
+	pusher := tasks.NewSync(client, *interval, *safe)
 	pusher.Set(*key, *value, ttlValue)
-	task := pusher.Start(limit)
+	task, state := pusher.Start(limit)
 
+	// Await for task to complete
 	task.Wait()
-	os.Exit(0)
+	os.Exit(*state)
 }
