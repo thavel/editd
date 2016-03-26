@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"sync"
+	"errors"
 
 	"etcd"
 )
@@ -25,8 +26,12 @@ func NewSync(cli *etcd.Client, period int, safe bool) *Pusher {
 	return pusher
 }
 
-func (push *Pusher) Set(endpoint string, data string, ttl int) {
+func (push *Pusher) Set(endpoint string, data string, ttl int) error {
+	if len(endpoint) <= 0 || len(data) <= 0 {
+		return errors.New("Key and/or value parameters are missing!")
+	}
 	push.data = etcd.NewData(endpoint, data, ttl)
+	return nil
 }
 
 func (push *Pusher) Start(limit int) (*sync.WaitGroup, *int) {

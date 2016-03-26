@@ -46,7 +46,11 @@ func main() {
 
 	// Creating a new asynchronous task to push keys/values.
 	pusher := tasks.NewSync(client, *interval, *safe)
-	pusher.Set(*key, *value, ttlValue)
+	err = pusher.Set(*key, *value, ttlValue)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	task, state := pusher.Start(limit)
 
 	// Await for task to complete
