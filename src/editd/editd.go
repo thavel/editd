@@ -4,7 +4,9 @@ import (
 	"os"
 	"flag"
 	"fmt"
+	"syscall"
 	"io/ioutil"
+	"os/signal"
 
 	"etcd"
 	"tasks"
@@ -20,6 +22,8 @@ var (
 	fvalue   = flag.String("fvalue", "", "file content value")
 	ttl      = flag.Int("ttl", 10000, "TTL duration for keys")
 	nottl    = flag.Bool("nottl", false, "disable TTL duration for keys")
+
+	pusher   *tasks.Pusher
 )
 
 func main() {
@@ -61,7 +65,7 @@ func main() {
 	}
 
 	// Creating a new asynchronous task to push keys/values.
-	pusher := tasks.NewSync(client, *interval, *safe)
+	pusher = tasks.NewSync(client, *interval, *safe)
 	err = pusher.Set(*key, val, ttlValue)
 	if err != nil {
 		fmt.Println(err)
@@ -70,6 +74,7 @@ func main() {
 	task, state := pusher.Start(limit)
 
 	// Await for task to complete
+	handleSignals()
 	task.Wait()
 	os.Exit(*state)
 }
@@ -77,4 +82,16 @@ func main() {
 func readfvalue(path string) (string, error) {
 	data, err := ioutil.ReadFile(path)
 	return string(data), err
+}
+
+func handleSignals() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		fmt.Println("Exiting...")
+		pusher.Stop()
+		os.Exit(0)
+	}()
 }

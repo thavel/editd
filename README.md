@@ -61,5 +61,4 @@ editd -node localhost:4001 -key /hello -value world
 ## Upcoming features
 
 * Handle different backends (for now, only _etcd_ is supported).
-* Improve signal handling.
 * Support secured requests.
