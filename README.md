@@ -55,6 +55,7 @@ editd -node localhost:4001 -key /hello -value world
 | `-ttl`      | 10000   | TTL duration for keys         |
 | `-nottl`    | No      | Disable TTL duration for keys |
 | `-safe`     | No      | Exit upon errors              |
+| `-fvalue`   | n/a     | Use file content as value     |
 
 
 ## Upcoming features
@@ -62,4 +63,3 @@ editd -node localhost:4001 -key /hello -value world
 * Handle different backends (for now, only _etcd_ is supported).
 * Improve signal handling.
 * Support secured requests.
-* Pass file content as value.

@@ -4,6 +4,7 @@ import (
 	"os"
 	"flag"
 	"fmt"
+	"io/ioutil"
 
 	"etcd"
 	"tasks"
@@ -16,6 +17,7 @@ var (
 	safe     = flag.Bool("safe", false, "exit upon errors")
 	key      = flag.String("key", "", "etcd key path")
 	value    = flag.String("value", "", "specified key's value")
+	fvalue   = flag.String("fvalue", "", "file content value")
 	ttl      = flag.Int("ttl", 10000, "TTL duration for keys")
 	nottl    = flag.Bool("nottl", false, "disable TTL duration for keys")
 )
@@ -44,9 +46,23 @@ func main() {
 		ttlValue = 0
 	}
 
+	// Compute key's value
+	val := *value
+	if len(*fvalue) > 0 {
+		if len(*value) > 0 {
+			fmt.Println("Can't use both value and fvalue!")
+			os.Exit(1)
+		}
+		val, err = readfvalue(*fvalue)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+
 	// Creating a new asynchronous task to push keys/values.
 	pusher := tasks.NewSync(client, *interval, *safe)
-	err = pusher.Set(*key, *value, ttlValue)
+	err = pusher.Set(*key, val, ttlValue)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -56,4 +72,9 @@ func main() {
 	// Await for task to complete
 	task.Wait()
 	os.Exit(*state)
+}
+
+func readfvalue(path string) (string, error) {
+	data, err := ioutil.ReadFile(path)
+	return string(data), err
 }
